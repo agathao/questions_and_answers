@@ -9,7 +9,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render_to_response,redirect
 from django.template import RequestContext
 from django.core.mail import send_mail
-from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 from django.http import HttpResponseForbidden
 from django.contrib.auth.forms import UserCreationForm
@@ -21,7 +20,7 @@ from forum.forms import CreateQuestion, CreateAnswer
 class IndexView(generic.ListView):
     template_name = 'forum/index.html'
     context_object_name = 'latest_question_list'
-    paginate_by = 1 
+    paginate_by = 10 
 
     def get_queryset(self):
         """
@@ -57,7 +56,7 @@ class DetailView(generic.DetailView):
         return Question.objects.filter(pub_date__lte=timezone.now())
     
 
-class DetailViewAddQuestion(SingleObjectMixin, FormView):
+class DetailViewAddQuestion(SingleObjectMixin, generic.FormView):
     template_name = 'forum/detail.html'
     form_class = CreateAnswer
     model = Question
