@@ -1,0 +1,27 @@
+{% extends "forum/base.html" %}
+
+{% block sectionHeader %}Asked by {{ question.creator }} on {{ question.pub_date|date:'Y-m-d H:i' }}
+{% if user.username == question.creator.username %}
+| <a href="{% url 'forum:editquestion' question.id %}" method="post">EDIT</a>
+{% endif %}
+{% endblock %}
+
+{% block sectionText %}
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} {{ message }} <br /> {% endif %}
+    {% endfor %}
+{% endif %}
+
+{{ question.question_text }}
+<br />
+Last modified on {{ question.mod_date|date:'Y-m-d H:i' }} | Votes: {{ question.votes }} <br /> 
+<a href="{% url 'forum:votequestionup' question.id %}" method="post">Vote Up</a> | <a href="{% url 'forum:votequestiondown' question.id %}" method="post">Vote Down</a>
+<br />
+Tags: 
+{% for tag in question.tags_set.all %}
+# {{ tag.tag_text }} 
+{% endfor %}
+
+{% endblock %}

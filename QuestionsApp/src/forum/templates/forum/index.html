@@ -1,0 +1,55 @@
+{% extends "forum/base.html" %}
+
+{% block title %} Q & A | Home{% endblock %}
+
+{% block sectionHeader %}
+
+	{% if user.is_authenticated %}
+		Welcome, {{ user.username }}!
+	{% else %}
+		Welcome!
+	{% endif %}
+
+{% endblock %}
+
+{% block sectionText %}<a href="{% url 'forum:createquestion' %}">Ask Away</a> or Answer one of the questions below{% endblock %}
+
+{% block sectionContent %}
+<div class="homecontent">
+	
+	{% if latest_question_list %}
+    <ul>
+	{% load app_filters %}
+    {% for question in latest_question_list %}
+	<li>
+		<h2><a href="{% url 'forum:detail' question.id %}">{{ question.question_text|ellipses:500 }}</a></h2>
+        <p>Asked by {{ question.creator }} on {{ question.pub_date|date:'Y-m-d H:i' }} | Votes: {{ question.votes }} | Last Updated  on {{ question.mod_date|date:'Y-m-d H:i' }}</p>
+	</li>
+    {% endfor %}
+    </ul>
+	
+	{% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="/forum?page={{ page_obj.previous_page_number }}"><<</a> |
+                {% endif %}
+                <span class="page-current">
+                    {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                {% if page_obj.has_next %}
+                    | <a href="/forum?page={{ page_obj.next_page_number }}">>></a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+	
+{% else %}
+    <p>No questions are at available.</p>
+{% endif %}
+
+</div>
+
+
+{% endblock %}		
+

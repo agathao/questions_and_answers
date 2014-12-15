@@ -1,0 +1,24 @@
+{% extends "forum/base_detail_edit.html" %}
+
+{% block title %} Q & A | Edit{% endblock %}
+
+{% block sectionContent %}
+<div class="homecontent">
+	
+	<ul>
+	<li>
+	<h2>Edit</h2>
+	<form action="" method="post">
+        <table>
+            {{ form.as_ul }}
+        </table>
+        {% csrf_token %}
+        <input type="submit" value="Submit">
+    </form>
+	</li>
+	</ul>
+
+</div>
+
+
+{% endblock %}	

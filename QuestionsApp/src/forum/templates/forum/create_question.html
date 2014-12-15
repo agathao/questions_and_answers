@@ -1,0 +1,30 @@
+{% extends "forum/base.html" %}
+
+{% block title %} Q & A | Create Question{% endblock %}
+
+{% block sectionHeader %}Create Question{% endblock %}
+
+{% block sectionText %}
+
+{% if form.errors %}
+    Please correct the error{{ form.errors|pluralize }} below.
+{% else %}
+	Please enter your question below
+{% endif %}
+	
+{% endblock %}
+
+{% block sectionContent %}
+<div class="homecontent">
+
+	<form action="" method="post">
+        <table>
+            {{ form.as_ul }}
+        </table>
+        {% csrf_token %}
+        <input type="submit" value="Submit">
+    </form>
+
+</div>
+
+{% endblock %}	

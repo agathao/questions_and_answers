@@ -1,0 +1,28 @@
+{% extends "forum/base.html" %}
+
+{% block title %} Q & A | New User{% endblock %}
+
+{% block sectionHeader %}Welcome!{% endblock %}
+
+{% block sectionText %}
+
+{% if form.errors %}
+    Please correct the error{{ form.errors|pluralize }} below.
+{% else %}
+	Please fill out the registration form
+{% endif %}
+	
+{% endblock %}
+
+{% block sectionContent %}
+<div class="homecontent">
+
+	<form action="" method="post">
+      {{ form.as_ul }}
+	  {% csrf_token %}
+      <input type="submit" value="Create the account">
+  </form>
+
+</div>
+
+{% endblock %}	

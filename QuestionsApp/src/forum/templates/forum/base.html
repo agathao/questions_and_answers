@@ -1,0 +1,68 @@
+{% load staticfiles %}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>{% block title %}{% endblock %}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="{% static 'forum/layout.css' %}" />
+</head>
+<body id="top">
+<div id="container">
+  <div id="head">
+    <div id="logo">
+      <h1><a href="index.html"><strong><span>Q</span>&</strong><span>A</span></a></h1>
+    </div>
+    <div id="social">
+      <ul>
+        <li><a href="https://twitter.com"><img src="{% static 'forum/images/twitter.jpg' %}" alt="Twitter" /></a></li>
+        <li><a href="https://www.reddit.com/"><img src="{% static 'forum/images/reddit.jpg' %}" alt="reddit" /></a></li>
+        <li><a href="https://www.stumbleupon.com/"><img src="{% static 'forum/images/stumbleupon.jpg' %}" alt="Stumbleupon" /></a></li>
+        <li><a href="http://facebook.com/"><img src="{% static 'forum/images/facebook.jpg' %}" alt="Add to: Facebook" /></a></li>
+        <li><a href="http://digg.com/"><img src="{% static 'forum/images/digg.jpg' %}" alt="Digg" /></a></li>
+        <li class="last"><a href="https://www.yahoo.com/"><img src="{% static 'forum/images/yahoo.jpg' %}" alt="Y! MyWeb" /></a></li>
+      </ul>
+    </div>
+    <div id="quicklinks">
+      <ul>		
+		<li><a href="{% url 'forum:index' %}">Home Page</a></li>
+		{% if user.is_authenticated %}
+		<li><a href="{% url 'forum:createquestion' %}">Create Question</a></li>
+		<li class="last"><a href="{% url 'forum:logout' %}">Logout</a></li>
+		{% else %}
+		<li><a href="{% url 'forum:login' %}">Login</a></li>
+		<li class="last"><a href="{% url 'forum:register' %}">Register</a></li>
+		{% endif %}
+		
+      </ul>
+    </div>
+  </div>
+  <div id="wrapper">
+    <div id="content">
+      <div id="introbox">
+        <div>{</div>
+        <h2>{% block sectionHeader %}{% endblock %}</h2>
+        <p>{% block sectionText %}{% endblock %}</p>
+      </div>
+	  
+	  {% block sectionContent %}{% endblock %}
+    </div>
+
+	<div id="rightblock">
+	{% block sideBar %}{% endblock %}
+	</div>
+    <div class="clear"></div>
+  </div>
+  <div id="footer">
+    <!-- End Company Details -->
+    <div id="copyright">
+      <p class="fl_left">Copyright &copy; 2014 - All Rights Reserved - <a href="http://cs.nyu.edu/~alo270/cgi-bin/sample-script.cgi">Agatha Oliveira</a></p>
+      <p class="fl_right">Template by <a target="_blank" href="http://www.os-templates.com/" title="Free Website Templates">OS Templates</a></p>
+      <br class="clear" />
+    </div>
+    <div class="clear"></div>
+  </div>
+</div>
+</body>
+</html>
+
+	
