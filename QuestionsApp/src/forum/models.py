@@ -57,3 +57,14 @@ class Tags(models.Model):
 class UploadedImage(models.Model):
     imagefile=models.ImageField(upload_to='documents/%Y/%m/%d') #"user_images/uploaded_images")
     owner=models.ForeignKey(settings.AUTH_USER_MODEL)
+    
+class QuestionVotesRegistry(models.Model):
+    question = models.ForeignKey(Question)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    vote = models.IntegerField()
+    
+class AnswerVotesRegistry(models.Model):
+    answer = models.ForeignKey(Answer)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    vote = models.IntegerField()
+    

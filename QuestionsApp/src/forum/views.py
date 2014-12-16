@@ -13,7 +13,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 
-from forum.models import Answer, Question, UploadedImage
+from forum.models import Answer, Question, UploadedImage, AnswerVotesRegistry, QuestionVotesRegistry
 from forum.forms import CreateQuestion, CreateAnswer, ImageForm
 
 class IndexView(generic.ListView):
@@ -110,24 +110,91 @@ def user_logout(request):
 @login_required(login_url='/forum/login/')
 def voteQuestionDown(request, question_id):
     p = get_object_or_404(Question, pk=question_id)
-    p.votes += -1
-    p.save()
-    return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+    try:
+        my_vote = QuestionVotesRegistry.objects.get(creator=User.objects.get(username=request.user), question=p)
+    except (KeyError, QuestionVotesRegistry.DoesNotExist):
+        v = QuestionVotesRegistry(question=p, creator=User.objects.get(username=request.user),vote=1)
+        v.save()
+        p.votes += -1
+        p.save()
+        return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+    else:
+        if my_vote:
+            v = my_vote.vote
+            if v == 1:
+                p.votes += -2
+                p.save()
+                my_vote.vote = -1
+                my_vote.save()
+        return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
     
 @login_required(login_url='/forum/login/')
 def voteQuestionUp(request, question_id):
     p = get_object_or_404(Question, pk=question_id)
-    p.votes += 1
-    p.save()
-    return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+    try:
+        my_vote = QuestionVotesRegistry.objects.get(creator=User.objects.get(username=request.user), question=p)
+    except (KeyError, QuestionVotesRegistry.DoesNotExist):
+        v = QuestionVotesRegistry(question=p, creator=User.objects.get(username=request.user),vote=1)
+        v.save()
+        p.votes += 1
+        p.save()
+        return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+    else:
+        if my_vote:
+            v = my_vote.vote
+            if v == -1:
+                p.votes += 2
+                p.save()
+                my_vote.vote = 1
+                my_vote.save()
+                
+        return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
 
 @login_required(login_url='/forum/login/')
 def voteDown(request, question_id, answer_id):
-    return vote(request, question_id, answer_id, -1)
+    ans = get_object_or_404(Answer, pk=answer_id)
+    try:
+        my_vote = AnswerVotesRegistry.objects.get(creator=User.objects.get(username=request.user), answer=ans)
+    except (KeyError, AnswerVotesRegistry.DoesNotExist):
+        v = AnswerVotesRegistry(answer=Answer.objects.get(pk=answer_id), creator=User.objects.get(username=request.user),vote=-1)
+        v.save()
+        return vote(request, question_id, answer_id, -1)
+    else:
+        if my_vote:
+            v = my_vote.vote
+            if v == 1:
+                my_vote.vote = -1
+                my_vote.save()
+                return vote(request, question_id, answer_id, -2)
+            else:
+                return vote(request, question_id, answer_id, 0)
+        else:
+            v = AnswerVotesRegistry(answer=Answer.objects.get(pk=answer_id), creator=User.objects.get(username=request.user),vote=-1)
+            v.save()
+            return vote(request, question_id, answer_id, -1)
 
 @login_required(login_url='/forum/login/')
 def voteUp(request, question_id, answer_id):
-    return vote(request, question_id, answer_id, 1)
+    ans = get_object_or_404(Answer, pk=answer_id)
+    try:
+        my_vote = AnswerVotesRegistry.objects.get(creator=User.objects.get(username=request.user), answer=ans)
+    except (KeyError, AnswerVotesRegistry.DoesNotExist):
+        v = AnswerVotesRegistry(answer=Answer.objects.get(pk=answer_id), creator=User.objects.get(username=request.user),vote=1)
+        v.save()
+        return vote(request, question_id, answer_id, 1)
+    else:
+        if my_vote:
+            v = my_vote.vote
+            if v == 1:
+                return vote(request, question_id, answer_id, 0)
+            else:
+                my_vote.vote = 1
+                my_vote.save()
+                return vote(request, question_id, answer_id, 2)
+        else:
+            v = AnswerVotesRegistry(answer=Answer.objects.get(pk=answer_id), creator=User.objects.get(username=request.user),vote=1)
+            v.save()
+            return vote(request, question_id, answer_id, 1)
 
 @login_required(login_url='/forum/login/')
 def vote(request, question_id, answer_id, num):
