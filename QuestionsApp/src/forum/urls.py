@@ -1,4 +1,6 @@
 from django.conf.urls import patterns, url
+from django.conf.urls.static import static
+from django.conf import settings
 
 from forum import views
 
@@ -7,6 +9,7 @@ urlpatterns = patterns('',
     url(r'^login/$', views.user_login, name='login'),
     url(r'^logout/$', views.user_login, name='logout'),
     url(r'^createQuestion/$', views.create_question, name='createquestion'),
+    url(r'^upload_image/$', views.upload_image_view, name='upload_image'),
     url(r'^register/$', views.register, name='register'),
     url(r'^(?P<pk>\d+)/$', views.Detail.as_view(), name='detail'),
     url(r'^(?P<question_id>\d+)/(?P<answer_id>\d+)/voteup/$', views.voteUp, name='voteup'),
@@ -15,4 +18,4 @@ urlpatterns = patterns('',
     url(r'^(?P<question_id>\d+)/voteqdown/$', views.voteQuestionDown, name='votequestiondown'),
     url(r'^(?P<question_id>\d+)/editquestion/$', views.edit_question, name='editquestion'),
     url(r'^(?P<question_id>\d+)/(?P<answer_id>\d+)/editanswer/$', views.edit_answer, name='editanswer'),
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -27,6 +27,7 @@
 		<li><a href="{% url 'forum:index' %}">Home Page</a></li>
 		{% if user.is_authenticated %}
 		<li><a href="{% url 'forum:createquestion' %}">Create Question</a></li>
+		<li><a href="{% url 'forum:upload_image' %}">Upload Image</a></li>
 		<li class="last"><a href="{% url 'forum:logout' %}">Logout</a></li>
 		{% else %}
 		<li><a href="{% url 'forum:login' %}">Login</a></li>

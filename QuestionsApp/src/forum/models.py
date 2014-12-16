@@ -54,3 +54,6 @@ class Tags(models.Model):
         return self.tag_text
 
         
+class UploadedImage(models.Model):
+    imagefile=models.ImageField(upload_to='documents/%Y/%m/%d') #"user_images/uploaded_images")
+    owner=models.ForeignKey(settings.AUTH_USER_MODEL)

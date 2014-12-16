@@ -1,0 +1,49 @@
+{% extends "forum/base.html" %}
+
+{% block title %} Q & A | Upload Image{% endblock %}
+
+{% block sectionHeader %}Upload Image{% endblock %}
+
+{% block sectionText %}
+Please upload image
+{% endblock %}
+
+{% block sectionContent %}
+<div class="homecontent">
+	
+	<ul>
+	<li>
+	<h2>Upload</h2>
+	
+	<!-- List of uploaded documents -->
+		{% if my_images %}
+			<ul>
+			{% for document in my_images %}
+				<img src="{{ MEDIA_URL }}{{ document.url }}" alt="" />
+				<!-- <li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li> -->
+			{% endfor %}
+			</ul>
+		{% else %}
+			<p>No documents.</p>
+		{% endif %}
+	
+	<div id="respond">
+	<form action="{% url "forum:upload_image" %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>{{ form.non_field_errors }}</p>
+    <p>{{ form.imagefile.label_tag }} {{ form.imagefile.help_text }}</p>
+    <p>
+        {{ form.imagefile.errors }}
+        {{ form.imagefile }}
+    </p>
+    <p> {{ form.errors }}</p>
+    <p><input type="submit" value="Upload" /></p>
+</form>
+	</div>
+	</li>
+	</ul>
+	
+</div>
+
+
+{% endblock %}	

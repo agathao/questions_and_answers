@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
@@ -11,9 +11,10 @@ from django.core.mail import send_mail
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from django.contrib.auth.models import User
 
-from forum.models import Answer, Question
-from forum.forms import CreateQuestion, CreateAnswer
+from forum.models import Answer, Question, UploadedImage
+from forum.forms import CreateQuestion, CreateAnswer, ImageForm
 
 class IndexView(generic.ListView):
     template_name = 'forum/index.html'
@@ -233,3 +234,31 @@ def edit_answer(request, question_id, answer_id):
         else:
             messages.add_message(request, messages.ERROR, "ERROR: You are not the creator of this answer")
             return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+
+
+def upload_image_view(request):
+    if request.method=='GET':
+        form=ImageForm()
+        # TODO: Limits to images uploaded by current user
+        my_images = UploadedImage.objects.filter(owner=User.objects.get(username=request.user))
+        return render_to_response(
+            'forum/upload_image.html',
+            {'my_images': my_images, 'form': form,},
+            context_instance=RequestContext(request)
+        )
+    elif request.method=='POST':
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            u= User.objects.get(username=request.user)
+            newdoc = UploadedImage(imagefile = request.FILES['imagefile'], owner=u)
+            newdoc.save()
+            return HttpResponseRedirect('/forum/upload_image/')
+        else:
+            my_images = UploadedImage.objects.filter(owner=User.objects.get(username=request.user))
+            return render_to_response(
+                'uploader.html',
+                {'my_images': my_images, 'form': form,},
+                context_instance=RequestContext(request)
+            )
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST'])
