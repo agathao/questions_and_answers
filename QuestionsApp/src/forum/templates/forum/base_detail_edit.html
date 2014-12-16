@@ -13,8 +13,10 @@
 {% autoescape off %}{{ question.question_text|replaceimage|urlize }}{% endautoescape %}<br />
 <b>Asked by {{ question.creator }} on {{ question.pub_date|date:'Y-m-d H:i' }} | Last modified on {{ question.mod_date|date:'Y-m-d H:i' }} | Votes: {{ question.votes }} | <a href="{% url 'forum:votequestionup' question.id %}" method="post">Vote Up</a> | <a href="{% url 'forum:votequestiondown' question.id %}" method="post">Vote Down</a><br />
 Tags: 
-{% for tag in question.tags_set.all %}
-# {{ tag.tag_text }} 
+{% for tag in question.tags.all %}
+{% if tag.tag_text and tag.tag_text.strip %}
+	# <a href="{% url 'forum:filter_tag' tag.id %}">{{ tag.tag_text }} </a>
+{% endif %}
 {% endfor %}</b>
 
 

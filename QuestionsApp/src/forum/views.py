@@ -13,7 +13,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 
-from forum.models import Answer, Question, UploadedImage, AnswerVotesRegistry, QuestionVotesRegistry
+from forum.models import Answer, Question, UploadedImage, AnswerVotesRegistry, QuestionVotesRegistry, Tags
 from forum.forms import CreateQuestion, CreateAnswer, ImageForm
 
 class IndexView(generic.ListView):
@@ -27,6 +27,18 @@ class IndexView(generic.ListView):
         published in the future).
         """
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
+
+class FilteredIndexView(generic.ListView):
+    template_name = 'forum/index.html'
+    context_object_name = 'latest_question_list'
+    paginate_by = 10 
+
+    def get_queryset(self):
+        """
+        Return the last five published questions (not including those set to be
+        published in the future).
+        """
+        return Question.objects.filter(tags__id=self.kwargs.get('pk', None))
 
  
 class Detail(generic.View):
@@ -238,7 +250,14 @@ def create_question(request):
             q.save()
             
             for t in tags.split(','):
-                q.tags_set.create(tag_text=t)
+                try:
+                    my_tag = Tags.objects.get(tag_text=t)
+                except (KeyError, Tags.DoesNotExist):
+                    tag_create = Tags(tag_text=t)
+                    tag_create.save()
+                    q.tags.add(tag_create)
+                else:
+                    q.tags.add(my_tag)
             
             return HttpResponseRedirect('/forum/')
     else:
@@ -262,6 +281,17 @@ def edit_question(request, question_id):
                 p.mod_date = timezone.now()
                 p.tags_list = tags
                 p.save()
+                
+                for t in tags.split(','):
+                    try:
+                        my_tag = Tags.objects.get(tag_text=t)
+                    except (KeyError, Tags.DoesNotExist):
+                        tag_create = Tags(tag_text=t)
+                        tag_create.save()
+                        p.tags.add(tag_create)
+                    else:
+                        p.tags.add(my_tag)
+                
                 return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
         else:
             form = CreateQuestion(initial ={'question' : p.question_text, 'question_title' : p.question_title,'tags' : p.tags_list})
@@ -330,3 +360,4 @@ def upload_image_view(request):
             )
     else:
         return HttpResponseNotAllowed(['GET', 'POST'])
+    

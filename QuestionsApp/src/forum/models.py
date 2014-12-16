@@ -6,6 +6,13 @@ from django.conf import settings
 TEXT_LENGTH = 10000
 TITLE_LENGTH = 500
 
+class Tags(models.Model):
+    tag_text = models.CharField(max_length=10000)
+     
+    def __unicode__(self):              # __unicode__ on Python 2
+        return self.tag_text
+
+
 class Question(models.Model):
     question_text = models.CharField(max_length=TEXT_LENGTH)
     question_title = models.CharField(max_length=TITLE_LENGTH)
@@ -14,6 +21,7 @@ class Question(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     votes = models.IntegerField(default=0)
     tags_list = models.CharField(max_length=TEXT_LENGTH, default="")
+    tags = models.ManyToManyField(Tags)
         
     def __unicode__(self):              # __unicode__ on Python 2
         return self.question_text + " - " + unicode(self.creator)
@@ -44,14 +52,6 @@ class Answer(models.Model):
      
     def __unicode__(self):              # __unicode__ on Python 2
         return self.answer_text
-
-        
-class Tags(models.Model):
-    question = models.ForeignKey(Question)
-    tag_text = models.CharField(max_length=10000)
-     
-    def __unicode__(self):              # __unicode__ on Python 2
-        return self.tag_text
 
         
 class UploadedImage(models.Model):
