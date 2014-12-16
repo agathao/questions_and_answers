@@ -235,12 +235,13 @@ def edit_answer(request, question_id, answer_id):
             messages.add_message(request, messages.ERROR, "ERROR: You are not the creator of this answer")
             return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
 
-
+@login_required(login_url='/forum/login/')
 def upload_image_view(request):
     if request.method=='GET':
         form=ImageForm()
         # TODO: Limits to images uploaded by current user
         my_images = UploadedImage.objects.filter(owner=User.objects.get(username=request.user))
+        
         return render_to_response(
             'forum/upload_image.html',
             {'my_images': my_images, 'form': form,},

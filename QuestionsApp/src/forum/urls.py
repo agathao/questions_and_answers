@@ -1,6 +1,4 @@
 from django.conf.urls import patterns, url
-from django.conf.urls.static import static
-from django.conf import settings
 
 from forum import views
 
@@ -18,4 +16,4 @@ urlpatterns = patterns('',
     url(r'^(?P<question_id>\d+)/voteqdown/$', views.voteQuestionDown, name='votequestiondown'),
     url(r'^(?P<question_id>\d+)/editquestion/$', views.edit_question, name='editquestion'),
     url(r'^(?P<question_id>\d+)/(?P<answer_id>\d+)/editanswer/$', views.edit_answer, name='editanswer'),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+) 

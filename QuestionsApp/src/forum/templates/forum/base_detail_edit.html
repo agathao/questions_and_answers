@@ -2,7 +2,7 @@
 
 {% block sectionHeader %}
 {% load app_filters %}
-{{ question.question_title|replaceimage|urlize }}
+{% autoescape off %}{{ question.question_title|replaceimage|urlize }}{% endautoescape %}
 {% if user.username == question.creator.username %}
 | <a href="{% url 'forum:editquestion' question.id %}" method="post">EDIT</a>
 {% endif %}
@@ -10,7 +10,7 @@
 
 {% block sectionText %}
 {% load app_filters %}
-{{ question.question_text|replaceimage|urlize }}<br />
+{% autoescape off %}{{ question.question_text|replaceimage|urlize }}{% endautoescape %}<br />
 <b>Asked by {{ question.creator }} on {{ question.pub_date|date:'Y-m-d H:i' }} | Last modified on {{ question.mod_date|date:'Y-m-d H:i' }} | Votes: {{ question.votes }} | <a href="{% url 'forum:votequestionup' question.id %}" method="post">Vote Up</a> | <a href="{% url 'forum:votequestiondown' question.id %}" method="post">Vote Down</a><br />
 Tags: 
 {% for tag in question.tags_set.all %}

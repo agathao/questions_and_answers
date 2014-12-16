@@ -9,7 +9,7 @@
 	{% load app_filters %}
 	{% for answer in question.get_sorted_answers %}
 		<li>
-		<h2>{{ answer.answer_title|replaceimage|urlize  }}
+		<h2>{% autoescape off %}{{ answer.answer_title|replaceimage|urlize  }}{% endautoescape %}
 		{% if user.username == answer.creator.username %}
 			| <a href="{% url 'forum:editanswer' question.id answer.id %}" method="post">EDIT</a>
 		{% endif %}
