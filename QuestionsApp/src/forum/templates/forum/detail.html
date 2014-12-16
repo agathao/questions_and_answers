@@ -9,44 +9,35 @@
 	{% load app_filters %}
 	{% for answer in question.get_sorted_answers %}
 		<li>
-		<h2>Answered by {{ answer.creator }} on {{ answer.pub_date|date:'Y-m-d H:i' }} | Last Updated on {{ answer.mod_date|date:'Y-m-d H:i' }}
+		<h2>{{ answer.answer_title|replaceimage|urlize  }}
 		{% if user.username == answer.creator.username %}
 			| <a href="{% url 'forum:editanswer' question.id answer.id %}" method="post">EDIT</a>
 		{% endif %}
+		| {% csrf_token %}
+		Votes: {{ answer.votes }} | <a href="{% url 'forum:voteup' question.id answer.id %}" method="post">Vote Up</a> | <a href="{% url 'forum:votedown' question.id answer.id %}" method="post">Vote Down</a>
 		</h2>
-		{% csrf_token %}
 		<p> {% autoescape off %} {{ answer.answer_text|replaceimage|urlize  }} {% endautoescape %} </p>
-		<p>Votes: {{ answer.votes }} | <a href="{% url 'forum:voteup' question.id answer.id %}" method="post">Vote Up</a> | <a href="{% url 'forum:votedown' question.id answer.id %}" method="post">Vote Down</a></p>
+		<p><b>Answered by {{ answer.creator }} on {{ answer.pub_date|date:'Y-m-d H:i' }} | Last Updated on {{ answer.mod_date|date:'Y-m-d H:i' }}
+		
+		</b>
+		</li>
+		
 		
 	{% endfor %}
 	<li>
-	<h2>Have a better answer?</h2>
+	<h3>Have a better answer?</h3>
+	<div id="respond">
 	<form action="" method="post">
         <table>
-            {{ form.as_ul }}
+            {{ form.as_table }}
         </table>
         {% csrf_token %}
         <input type="submit" value="Submit">
     </form>
+	</div>
 	</li>
 	</ul>
 	
-	{% if is_paginated %}
-        <div class="pagination">
-            <span class="page-links">
-                {% if page_obj.has_previous %}
-                    <a href="/forum?page={{ page_obj.previous_page_number }}"><<</a> |
-                {% endif %}
-                <span class="page-current">
-                    {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
-                {% if page_obj.has_next %}
-                    | <a href="/forum?page={{ page_obj.next_page_number }}">>></a>
-                {% endif %}
-            </span>
-        </div>
-    {% endif %}
-
 </div>
 
 

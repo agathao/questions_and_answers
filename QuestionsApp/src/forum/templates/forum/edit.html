@@ -8,13 +8,15 @@
 	<ul>
 	<li>
 	<h2>Edit</h2>
+	<div id="respond">
 	<form action="" method="post">
         <table>
-            {{ form.as_ul }}
+            {{ form.as_table }}
         </table>
         {% csrf_token %}
         <input type="submit" value="Submit">
     </form>
+	</div>
 	</li>
 	</ul>
 

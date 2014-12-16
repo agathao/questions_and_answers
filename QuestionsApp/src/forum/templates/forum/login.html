@@ -10,7 +10,7 @@ Please fill your information below or click <a href="{% url 'forum:register' %}"
 
 {% block sectionContent %}
 <div class="homecontent">
-
+	<div id="respond">
 	<form class="form-horizontal" name="LoginForm" action="{% url 'forum:login' %}" method="post">
         {% csrf_token %}
         {% if next %}
@@ -34,6 +34,7 @@ Please fill your information below or click <a href="{% url 'forum:register' %}"
             </div>
         </div>
     </form>
+	</div>
 
 </div>
 

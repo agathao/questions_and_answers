@@ -3,14 +3,12 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render_to_response,redirect
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.mail import send_mail
 from django.views.generic.detail import SingleObjectMixin
-from django.http import HttpResponseForbidden
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 
@@ -71,8 +69,9 @@ class DetailViewAndAddAnswer(SingleObjectMixin, generic.FormView):
         if form.is_valid():
             cd = form.cleaned_data
             answer = cd['answer']
+            answer_tlt = cd['answer_title']
             p = get_object_or_404(Question, pk=self.kwargs.get('pk', None))
-            p.answer_set.create(answer_text=answer,creator=request.user)
+            p.answer_set.create(answer_title=answer_tlt,answer_text=answer,creator=request.user)
         return super(DetailViewAndAddAnswer, self).post(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -166,7 +165,8 @@ def create_question(request):
             cd = form.cleaned_data
             question = cd['question']
             tags = cd ['tags']
-            q = Question(question_text=question, pub_date=timezone.now(), creator=request.user, tags_list=tags)
+            question_tlt = cd['question_title'] 
+            q = Question(question_text=question, question_title=question_tlt,pub_date=timezone.now(), creator=request.user, tags_list=tags)
             q.save()
             
             for t in tags.split(','):
@@ -188,13 +188,15 @@ def edit_question(request, question_id):
                 cd = form.cleaned_data
                 question = cd['question']
                 tags = cd ['tags']
+                question_tlt = cd['question_title'] 
                 p.question_text = question
+                p.question_title = question_tlt
                 p.mod_date = timezone.now()
                 p.tags_list = tags
                 p.save()
                 return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
         else:
-            form = CreateQuestion(initial ={'question' : p.question_text, 'tags' : p.tags_list})
+            form = CreateQuestion(initial ={'question' : p.question_text, 'question_title' : p.question_title,'tags' : p.tags_list})
             return render(request, 'forum/edit.html', {'form': form, 'question': p})
     else:
         messages.add_message(request, messages.ERROR, "You are not the creator of this question")
@@ -219,12 +221,14 @@ def edit_answer(request, question_id, answer_id):
                 if form.is_valid():
                     cd = form.cleaned_data
                     answer = cd['answer']
+                    answer_tlt = cd['answer_title']
                     selected_answer.answer_text = answer
+                    selected_answer.answer_title = answer_tlt
                     selected_answer.mod_date = timezone.now()
                     selected_answer.save()
                 return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
             else:
-                form = CreateAnswer(initial ={'answer' : selected_answer.answer_text})
+                form = CreateAnswer(initial ={'answer' : selected_answer.answer_text, 'answer_title' : selected_answer.answer_title})
                 return render(request, 'forum/edit.html', {'form': form, 'question': p, 'answer': selected_answer})
         else:
             messages.add_message(request, messages.ERROR, "ERROR: You are not the creator of this answer")

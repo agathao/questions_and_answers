@@ -16,12 +16,13 @@
 
 {% block sectionContent %}
 <div class="homecontent">
-
+	<div id="respond">
 	<form action="" method="post">
-      {{ form.as_ul }}
+      {{ form.as_table }}
 	  {% csrf_token %}
       <input type="submit" value="Create the account">
   </form>
+  </div>
 
 </div>
 

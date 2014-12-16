@@ -16,7 +16,7 @@
 
 {% block sectionContent %}
 <div class="homecontent">
-
+	<div id="respond">
 	<form action="" method="post">
         <table>
             {{ form.as_ul }}
@@ -24,6 +24,7 @@
         {% csrf_token %}
         <input type="submit" value="Submit">
     </form>
+	</div>
 
 </div>
 

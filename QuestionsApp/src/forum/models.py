@@ -3,14 +3,17 @@ import datetime
 from django.utils import timezone
 from django.conf import settings
 
+TEXT_LENGTH = 10000
+TITLE_LENGTH = 500
 
 class Question(models.Model):
-    question_text = models.CharField(max_length=10000)
+    question_text = models.CharField(max_length=TEXT_LENGTH)
+    question_title = models.CharField(max_length=TITLE_LENGTH)
     pub_date = models.DateTimeField(auto_now_add=True)
     mod_date = models.DateTimeField(auto_now_add=True) 
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     votes = models.IntegerField(default=0)
-    tags_list = models.CharField(max_length=10000, default="")
+    tags_list = models.CharField(max_length=TEXT_LENGTH, default="")
         
     def __unicode__(self):              # __unicode__ on Python 2
         return self.question_text + " - " + unicode(self.creator)
@@ -32,7 +35,8 @@ class Question(models.Model):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question)
-    answer_text = models.CharField(max_length=10000)
+    answer_text = models.CharField(max_length=TEXT_LENGTH)
+    answer_title = models.CharField(max_length=TITLE_LENGTH)
     pub_date = models.DateTimeField(auto_now_add=True)
     mod_date = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
