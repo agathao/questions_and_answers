@@ -3,6 +3,7 @@
 {% block sectionHeader %}
 {% load app_filters %}
 {% autoescape off %}{{ question.question_title|replaceimage|urlize }}{% endautoescape %}
+| <a href="{% url 'forum:rss' question.id %}" method="post">RSS</a>
 {% if user.username == question.creator.username %}
 | <a href="{% url 'forum:editquestion' question.id %}" method="post">EDIT</a>
 {% endif %}

@@ -7,11 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core.mail import send_mail
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core import serializers
 
 from forum.models import Answer, Question, UploadedImage, AnswerVotesRegistry, QuestionVotesRegistry, Tags
 from forum.forms import CreateQuestion, CreateAnswer, ImageForm
@@ -41,6 +41,22 @@ class FilteredIndexView(generic.ListView):
         return Question.objects.filter(tags__id=self.kwargs.get('pk', None))
 
  
+class RSSView(generic.DetailView):
+    template_name = "forum/rss.html"
+    model = Question
+    
+    def get_context_data(self, **kwargs):
+        context = super(RSSView, self).get_context_data(**kwargs)
+        context['text_rep'] = serializers.serialize("xml", Question.objects.filter(pk=self.kwargs.get('pk', None))) 
+        return context
+    
+    def get_queryset(self):
+        """
+        Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(pk=self.kwargs.get('pk', None))
+    
+    
 class Detail(generic.View):
 
     def get(self, request, *args, **kwargs):

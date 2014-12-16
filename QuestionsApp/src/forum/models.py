@@ -3,8 +3,10 @@ import datetime
 from django.utils import timezone
 from django.conf import settings
 
+
 TEXT_LENGTH = 10000
 TITLE_LENGTH = 500
+
 
 class Tags(models.Model):
     tag_text = models.CharField(max_length=10000)

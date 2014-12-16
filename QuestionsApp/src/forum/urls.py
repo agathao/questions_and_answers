@@ -17,4 +17,5 @@ urlpatterns = patterns('',
     url(r'^(?P<question_id>\d+)/editquestion/$', views.edit_question, name='editquestion'),
     url(r'^(?P<question_id>\d+)/(?P<answer_id>\d+)/editanswer/$', views.edit_answer, name='editanswer'),
     url(r'^(?P<pk>\d+)/tag/$', views.FilteredIndexView.as_view(), name='filter_tag'),
+    url(r'^(?P<pk>\d+)/rss/$', views.RSSView.as_view(), name='rss'),
 ) 
