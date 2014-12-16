@@ -43,7 +43,11 @@
         <h2>{% block sectionHeader %}{% endblock %}</h2>
         <p>{% block sectionText %}{% endblock %}</p>
       </div>
-	  
+	  {% if messages %}
+		{% for message in messages %}
+			{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} {{ message }} <br /> {% endif %}
+		{% endfor %}
+	{% endif %}
 	  {% block sectionContent %}{% endblock %}
     </div>
 

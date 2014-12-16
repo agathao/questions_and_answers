@@ -8,12 +8,6 @@
 
 {% block sectionText %}
 
-{% if messages %}
-    {% for message in messages %}
-        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} {{ message }} <br /> {% endif %}
-    {% endfor %}
-{% endif %}
-
 {{ question.question_text }}
 <br />
 Last modified on {{ question.mod_date|date:'Y-m-d H:i' }} | Votes: {{ question.votes }} <br /> 

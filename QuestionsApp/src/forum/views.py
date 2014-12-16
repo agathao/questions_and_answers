@@ -37,7 +37,7 @@ class Detail(generic.View):
         return view(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        view = DetailViewAddQuestion.as_view()
+        view = DetailViewAndAddAnswer.as_view()
         return view(request, *args, **kwargs)
 
 class DetailView(generic.DetailView):
@@ -56,14 +56,16 @@ class DetailView(generic.DetailView):
         return Question.objects.filter(pub_date__lte=timezone.now())
     
 
-class DetailViewAddQuestion(SingleObjectMixin, generic.FormView):
+class DetailViewAndAddAnswer(SingleObjectMixin, generic.FormView):
     template_name = 'forum/detail.html'
     form_class = CreateAnswer
     model = Question
 
     def post(self, request, *args, **kwargs):
+        #require user authentication
         if not request.user.is_authenticated():
-            return HttpResponseForbidden()
+            return HttpResponseRedirect(reverse('forum:login'))
+        
         self.object = self.get_object()
         form = CreateAnswer(request.POST)
         if form.is_valid():
@@ -71,7 +73,7 @@ class DetailViewAddQuestion(SingleObjectMixin, generic.FormView):
             answer = cd['answer']
             p = get_object_or_404(Question, pk=self.kwargs.get('pk', None))
             p.answer_set.create(answer_text=answer,creator=request.user)
-        return super(DetailViewAddQuestion, self).post(request, *args, **kwargs)
+        return super(DetailViewAndAddAnswer, self).post(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('forum:detail', kwargs={'pk': self.object.pk})
@@ -81,10 +83,6 @@ class DetailViewAddQuestion(SingleObjectMixin, generic.FormView):
         Excludes any questions that aren't published yet.
         """
         return Question.objects.filter(pub_date__lte=timezone.now())
-
-class ResultsView(generic.DetailView):
-    model = Question
-    template_name = 'forum/results.html'
 
 def user_login(request):
     logout(request)
@@ -98,7 +96,8 @@ def user_login(request):
             if user.is_active:
                 login(request, user)
                 return HttpResponseRedirect('/forum/')
-            #TODO: ADD ERROR PAGES
+            
+        messages.add_message(request, messages.ERROR, 'Login Failed')
     return render_to_response('forum/login.html', context_instance=RequestContext(request))
 
 def user_logout(request):
@@ -117,9 +116,6 @@ def voteQuestionUp(request, question_id):
     p = get_object_or_404(Question, pk=question_id)
     p.votes += 1
     p.save()
-    # Always return an HttpResponseRedirect after successfully dealing
-    # with POST data. This prevents data from being posted twice if a
-    # user hits the Back button.
     return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
 
 @login_required(login_url='/forum/login/')
@@ -138,13 +134,25 @@ def vote(request, question_id, answer_id, num):
         # Redisplay the question voting form.
         return render(request, 'forum/detail.html', {
             'question': p,
-            'error_message': "You didn't select an answer.",
+            messages.ERROR: "You didn't select an answer.",
         })
     else:
         selected_answer.votes += num
         selected_answer.save()
         return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
-    
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            new_user = form.save()
+            return HttpResponseRedirect("/forum/login")
+    else:
+        form = UserCreationForm()
+    return render(request, "forum/register.html", {
+        'form': form,
+    })
+
 @login_required(login_url='/forum/login/')
 def create_question(request):
     if request.method == 'POST':
@@ -163,18 +171,6 @@ def create_question(request):
     else:
         form = CreateQuestion()
     return render(request, 'forum/create_question.html', {'form': form})
-
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            new_user = form.save()
-            return HttpResponseRedirect("/forum/login")
-    else:
-        form = UserCreationForm()
-    return render(request, "forum/register.html", {
-        'form': form,
-    })
    
 @login_required(login_url='/forum/login/')    
 def edit_question(request, question_id):
@@ -196,7 +192,7 @@ def edit_question(request, question_id):
             form = CreateQuestion(initial ={'question' : p.question_text, 'tags' : p.tags_list})
             return render(request, 'forum/edit.html', {'form': form, 'question': p})
     else:
-        messages.add_message(request, messages.ERROR, "ERROR: You are not the creator of this question")
+        messages.add_message(request, messages.ERROR, "You are not the creator of this question")
         return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
 
 @login_required(login_url='/forum/login/')    
@@ -221,7 +217,7 @@ def edit_answer(request, question_id, answer_id):
                     selected_answer.answer_text = answer
                     selected_answer.mod_date = timezone.now()
                     selected_answer.save()
-                    return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+                return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
             else:
                 form = CreateAnswer(initial ={'answer' : selected_answer.answer_text})
                 return render(request, 'forum/edit.html', {'form': form, 'question': p, 'answer': selected_answer})
