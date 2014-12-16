@@ -96,8 +96,11 @@ def user_login(request):
             if user.is_active:
                 login(request, user)
                 return HttpResponseRedirect('/forum/')
+            else:
+                messages.add_message(request, messages.ERROR, "User is not active")
+        else:
+            messages.add_message(request, messages.ERROR, "Incorrect user / password")
             
-        messages.add_message(request, messages.ERROR, 'Login Failed')
     return render_to_response('forum/login.html', context_instance=RequestContext(request))
 
 def user_logout(request):
@@ -120,26 +123,28 @@ def voteQuestionUp(request, question_id):
 
 @login_required(login_url='/forum/login/')
 def voteDown(request, question_id, answer_id):
-    vote(request, question_id, answer_id, -1)
+    return vote(request, question_id, answer_id, -1)
 
 @login_required(login_url='/forum/login/')
 def voteUp(request, question_id, answer_id):
-    vote(request, question_id, answer_id, 1)
+    return vote(request, question_id, answer_id, 1)
 
+@login_required(login_url='/forum/login/')
 def vote(request, question_id, answer_id, num):
     p = get_object_or_404(Question, pk=question_id)
     try:        
         selected_answer = p.answer_set.get(pk=answer_id)
     except (KeyError, Answer.DoesNotExist):
         # Redisplay the question voting form.
+        messages.add_message(request, messages.ERROR, "You did not select an answer")
         return render(request, 'forum/detail.html', {
             'question': p,
-            messages.ERROR: "You didn't select an answer.",
+            'form': CreateQuestion(),
         })
     else:
         selected_answer.votes += num
         selected_answer.save()
-        return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
+        return HttpResponseRedirect(reverse('forum:detail', args=(question_id,)))
 
 def register(request):
     if request.method == 'POST':
