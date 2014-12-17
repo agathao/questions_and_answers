@@ -47,13 +47,7 @@ class RSSView(generic.DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(RSSView, self).get_context_data(**kwargs)
-        questions = Question.objects.filter(pk=self.kwargs.get('pk', None))
-        rss = serializers.serialize("xml", questions)
-        for q in questions:
-            rss = rss + serializers.serialize("xml", Answer.objects.filter(question=q)) 
-            rss = rss + serializers.serialize("xml", Tags.objects.filter(question=q))
-            
-        context['text_rep'] = rss
+        context['text_rep'] = "This feature is disabled on this branch"
         return context
     
     def get_queryset(self):
