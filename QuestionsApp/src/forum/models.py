@@ -22,7 +22,6 @@ class Question(models.Model):
     mod_date = models.DateTimeField(auto_now_add=True) 
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     votes = models.IntegerField(default=0)
-    tags_list = models.CharField(max_length=TEXT_LENGTH, default="")
     tags = models.ManyToManyField(Tags)
         
     def __unicode__(self):              # __unicode__ on Python 2

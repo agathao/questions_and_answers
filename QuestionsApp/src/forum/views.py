@@ -47,7 +47,13 @@ class RSSView(generic.DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(RSSView, self).get_context_data(**kwargs)
-        context['text_rep'] = serializers.serialize("xml", Question.objects.filter(pk=self.kwargs.get('pk', None))) 
+        questions = Question.objects.filter(pk=self.kwargs.get('pk', None))
+        rss = serializers.serialize("xml", questions)
+        for q in questions:
+            rss = rss + serializers.serialize("xml", Answer.objects.filter(question=q)) 
+            rss = rss + serializers.serialize("xml", Tags.objects.filter(question=q))
+            
+        context['text_rep'] = rss
         return context
     
     def get_queryset(self):
@@ -266,14 +272,17 @@ def create_question(request):
             q.save()
             
             for t in tags.split(','):
-                try:
-                    my_tag = Tags.objects.get(tag_text=t)
-                except (KeyError, Tags.DoesNotExist):
-                    tag_create = Tags(tag_text=t)
-                    tag_create.save()
-                    q.tags.add(tag_create)
-                else:
-                    q.tags.add(my_tag)
+                if len(t) > 0:
+                    try:
+                        print "Text : " + t
+                        print len(t)
+                        my_tag = Tags.objects.get(tag_text=t)
+                    except (KeyError, Tags.DoesNotExist):
+                        tag_create = Tags(tag_text=t)
+                        tag_create.save()
+                        q.tags.add(tag_create)
+                    else:
+                        q.tags.add(my_tag)
             
             return HttpResponseRedirect('/forum/')
     else:
@@ -299,14 +308,15 @@ def edit_question(request, question_id):
                 p.save()
                 
                 for t in tags.split(','):
-                    try:
-                        my_tag = Tags.objects.get(tag_text=t)
-                    except (KeyError, Tags.DoesNotExist):
-                        tag_create = Tags(tag_text=t)
-                        tag_create.save()
-                        p.tags.add(tag_create)
-                    else:
-                        p.tags.add(my_tag)
+                    if len(t) > 0:
+                        try:
+                            my_tag = Tags.objects.get(tag_text=t)
+                        except (KeyError, Tags.DoesNotExist):
+                            tag_create = Tags(tag_text=t)
+                            tag_create.save()
+                            p.tags.add(tag_create)
+                        else:
+                            p.tags.add(my_tag)
                 
                 return HttpResponseRedirect(reverse('forum:detail', args=(p.id,)))
         else:

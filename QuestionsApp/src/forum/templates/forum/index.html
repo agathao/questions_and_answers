@@ -28,7 +28,7 @@
     {% for question in latest_question_list %}
 	<li>
 		<h2><a href="{% url 'forum:detail' question.id %}">{% autoescape off %}{{ question.question_title|replaceimage|urlize|ellipses:200 }}{% endautoescape %}</a> | Asked by {{ question.creator }} on {{ question.pub_date|date:'Y-m-d H:i' }} | Votes: {{ question.votes }} | Last Updated  on {{ question.mod_date|date:'Y-m-d H:i' }}</h2>
-		<p>{% autoescape off %}{{ question.question_text|replaceimage|urlize|ellipses:500 }}{% endautoescape %}</p>
+		<p>{% autoescape off %}{{ question.question_text|ellipses:500|replaceimage|urlize }}{% endautoescape %}</p>
 	</li>
     {% endfor %}
     </ul>
